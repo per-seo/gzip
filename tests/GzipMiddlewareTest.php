@@ -14,7 +14,7 @@ use Slim\Psr7\Stream as Stream;
 
 class GzipMiddlewareTest extends TestCase
 {
-    public function testCompressesResponseWhenGzipAccepted()
+    public function testCompressesResponseWhenGzipAccepted(): void
     {
 
         $middleware = new GZIP();
@@ -25,6 +25,9 @@ class GzipMiddlewareTest extends TestCase
 		
 		$originalBody = 'Test response';
 		$stream = fopen('php://memory', 'r+');
+		if ($stream === false) {
+			throw new \RuntimeException('Unable to open memory stream.');
+		}
 		fwrite($stream, $originalBody);
 		rewind($stream);
 		
@@ -44,7 +47,7 @@ class GzipMiddlewareTest extends TestCase
 		$this->assertEquals($originalBody, gzinflate(substr($compressedContent, 10, -8)));
     }
 
-    public function testDoesNotCompressResponseWhenGzipNotAccepted()
+    public function testDoesNotCompressResponseWhenGzipNotAccepted(): void
     {
         // Arrange
         $middleware = new GZIP();
@@ -54,6 +57,9 @@ class GzipMiddlewareTest extends TestCase
 		
 		$originalBody = 'Test response';
 		$stream = fopen('php://memory', 'r+');
+		if ($stream === false) {
+			throw new \RuntimeException('Unable to open memory stream.');
+		}
 		fwrite($stream, $originalBody);
 		rewind($stream);
 		

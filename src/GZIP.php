@@ -19,15 +19,23 @@ class GZIP implements MiddlewareInterface
         }
 
         $deflateContext = deflate_init(ZLIB_ENCODING_GZIP);
+        if ($deflateContext === false) {
+            throw new \RuntimeException('Failed to initialize deflate context.');
+        }
         $compressed = deflate_add($deflateContext, (string)$response->getBody(), \ZLIB_FINISH);
-
+        if ($compressed === false) {
+            throw new \RuntimeException('Failed to compress data using deflate_add.');
+        }
         $stream = fopen('php://memory', 'r+');
+        if ($stream === false) {
+            throw new \RuntimeException('Unable to open memory stream.');
+        }
         fwrite($stream, $compressed);
         rewind($stream);
 
         return $response
         ->withHeader('Content-Encoding', 'gzip')
-        ->withHeader('Content-Length', strlen($compressed))
+        ->withHeader('Content-Length', (string)strlen($compressed))
         ->withBody(new Stream($stream));
     }
 }
